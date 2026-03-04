@@ -35,6 +35,16 @@ class PostUpdate(BaseModel):
     dislikes:Optional[int]=None
     user_id:Optional[int]=None    #lateer should change
 
+@router.get("/posts/{post_id}",response_model=PostRead)
+def read_posts_by_id(post_id:int,db:Session=Depends(get_db)):
+    posts_db=db.query(Post).filter(Post.id==post_id).first()
+    if not posts_db:
+        raise HTTPException(status_code=404,detail="Post not found")
+    else:
+        return posts_db
+
+
+
 @router.get("/posts/",response_model=List[PostRead]) 
 def read_posts(db:Session=Depends(get_db)) :
     posts_db=db.query(Post).all()

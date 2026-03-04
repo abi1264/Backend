@@ -35,6 +35,21 @@ class UserUpdate(BaseModel):
     password:Optional[str]=None
 
 
+@router.get("/users/",response_model=List[UserRead])
+def read_user(db:Session=Depends(get_db)):
+    user_db=db.query(User).all()
+    return user_db
+
+
+@router.get("/users/{user_id}",response_model=UserRead)
+def read_user_by_id(user_id:int,db:Session=Depends(get_db)):
+    user_db=db.query(User).filter(User.id==user_id).first()
+    if not user_db:
+        raise HTTPException(status_code=404,detail="Usr not Found")
+    else:
+        return user_db
+
+
 #Create a new user
 @router.post("/users/",response_model=UserRead)
 def user_create(user:UserCreate, db:Session=Depends(get_db)):
@@ -48,12 +63,6 @@ def user_create(user:UserCreate, db:Session=Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     return db_user
-
-
-@router.get("/users/",response_model=List[UserRead])
-def read_user(db:Session=Depends(get_db)):
-    user_db=db.query(User).all()
-    return user_db
 
 
 @router.patch("/users/{user_id}")
